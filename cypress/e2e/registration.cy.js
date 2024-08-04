@@ -1,54 +1,57 @@
 /// <reference types='cypress' />
+const { faker } = require('@faker-js/faker');
+let username;
+let password;
 
-describe('Student Registration page', () => {
-  it('Student Registration Form', () => {
-    cy.visit('https://demoqa.com/automation-practice-form');
+describe('User Registration and Login Tests', () => {
+  beforeEach(() => {
+    username = faker.internet.userName();
+    password = faker.internet.password();
+  });
 
-    const randomNumber = Math.floor(Math.random() * 1000000);
-    const firstName = `Luba${randomNumber}`;
-    const lastName = `Ivanova${randomNumber}`;
-    const email = `${firstName}@mail.com`;
+  it('should register a new user', () => {
+    cy.visit('https://www.demoblaze.com');
+    cy.on('window:alert', (text) => {
+      if (text.includes('Sign up successful')) {
+        expect(text).to.contains('Sign up successful');
+      }
+    });
 
-    cy.get('#firstName')
-      .type(firstName);
+    cy.get('#signin2').click();
+    cy.get('#sign-username').type(username);
+    cy.get('#sign-password').type(password);
+    cy.get('button[onclick="register()"]').should('be.visible').click();
+  });
 
-    cy.get('#lastName')
-      .type(lastName);
+  it('should log in with registered user', () => {
+    cy.visit('https://www.demoblaze.com');
+    cy.on('window:alert', (text) => {
+      if (text.includes('Product added')) {
+        expect(text).to.contains('Product added');
+      }
+    });
 
-    cy.get('#userEmail')
-      .type(email);
+    cy.get('#login2').click();
+    cy.get('#loginusername').type(username);
+    cy.get('#loginpassword').type(password);
+    cy.get('button[onclick="logIn()"]').should('be.visible').click();
+  });
 
-    cy.get('#genterWrapper > .col-md-9 > :nth-child(1)')
-      .click();
+  it('should add a product to the cart after login', () => {
+    cy.visit('https://www.demoblaze.com');
+    cy.on('window:alert', (text) => {
+      if (text.includes('Product added')) {
+        expect(text).to.contains('Product added');
+      }
+    });
 
-    cy.get('#userNumber')
-      .type('0501234567');
-
-    cy.get('#dateOfBirthInput')
-      .invoke('val', '15 Jul 2024');
-
-    cy.get('.subjects-auto-complete__value-container')
-      .type('mathematics, physics, computer science');
-
-    cy.get('label[for="hobbies-checkbox-2"]')
-      .click();
-
-    cy.get('textarea[placeholder="Current Address"]')
-      .type('Odessa. Deribasovskaya street 72');
-
-    cy.get('textarea[placeholder="Current Address"]')
-      .type('Odessa. Deribasovskaya street 72');
-
-    cy.get('.css-tlfecz-indicatorContainer').first()
-      .click();
-
-    cy.contains('NCR', { timeout: 10000 })
-      .click();
-
-    cy.get('#submit')
-      .click();
-
-    cy.get('.modal-title')
-      .should('contain.text', 'Thanks for submitting the form');
+    cy.get('#login2').click();
+    cy.get('#loginusername').type(username);
+    cy.get('#loginpassword').type(password);
+    cy.get('button[onclick="logIn()"]').should('be.visible').click();
+    cy.contains('a.hrefch', 'Samsung galaxy s6')
+      .should('be.visible')
+      .click({ force: true });
+    cy.get('.col-sm-12 > .btn').click();
   });
 });
